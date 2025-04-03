@@ -45,7 +45,10 @@ def get_metric(instance_id, metric_name, start_time, end_time):
         Statistics=['Average']
     )
     datapoints = response.get('Datapoints', [])
-    return datapoints[0]['Average'] if datapoints else 0
+    if not datapoints:
+        print(f"No data for {metric_name} on {instance_id}. Defaulting to 0.")
+        return 0  # Default value when no data is found
+    return datapoints[0]["Average"]
 
 # Function to fetch running EC2 instances with the specific tag
 def get_running_instances():
@@ -106,7 +109,7 @@ def stop_idle_instances():
 
 
         # Idle Conditions: Low CPU, Low Network, Low Disk Activity
-        if cpu_util < 5 and network_in < 1000 and network_out < 1000 and disk_read < 1 and disk_write < 1:
+        if cpu_util < 5 and network_in < 5000 and network_out < 5000 and disk_read < 1 and disk_write < 1:
             print(f"Instance {instance_id} is idle. Stopping it...")
 
             # Stop the instance
